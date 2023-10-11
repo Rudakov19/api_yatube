@@ -1,11 +1,9 @@
 from django.shortcuts import get_object_or_404
-
+from django.core.exceptions import PermissionDenied
 from rest_framework import viewsets
 
 from posts.models import Post, Group, Comment
 from .serializers import PostSerializer, GroupSerializer, CommentSerializer
-
-from django.core.exceptions import PermissionDenied
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -18,12 +16,12 @@ class PostViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         if serializer.instance.author != self.request.user:
             raise PermissionDenied('Запрещено изменять не свой контент.')
-        super(PostViewSet, self).perform_update(serializer)
+        super().perform_update(serializer)
 
     def perform_destroy(self, serializer):
         if serializer.author != self.request.user:
             raise PermissionDenied('Запрещено удалять не свой контент.')
-        super(PostViewSet, self).perform_destroy(serializer)
+        super().perform_destroy(serializer)
 
 
 class GroupViewSet(viewsets.ReadOnlyModelViewSet):
@@ -36,8 +34,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
 
     def get_post(self):
-        post = get_object_or_404(Post, pk=self.kwargs.get('post_id'))
-        return post
+        return get_object_or_404(Post, pk=self.kwargs.get('post_id'))
 
     def get_queryset(self):
         return self.get_post().comments.all()
@@ -48,9 +45,9 @@ class CommentViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         if serializer.instance.author != self.request.user:
             raise PermissionDenied('Запрещено изменять не свой контент.')
-        super(CommentViewSet, self).perform_update(serializer)
+        super().perform_update(serializer)
 
     def perform_destroy(self, serializer):
         if serializer.author != self.request.user:
             raise PermissionDenied('Запрещено удалять не свой контент.')
-        super(CommentViewSet, self).perform_destroy(serializer)
+        super().perform_destroy(serializer)
